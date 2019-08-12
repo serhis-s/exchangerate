@@ -14,12 +14,13 @@ namespace ExchangeRate
         private readonly ILogger _logger;
 
         private readonly IProvider _provider;
-        private readonly IFactory _transformerFactory;
+        private readonly ITransformerFactory _transformerTransformerFactory;
 
 
-        public ExchangeRateService(IFactory transformerFactory, IProvider provider, ILogger logger)
+        public ExchangeRateService(ITransformerFactory transformerTransformerFactory, IProvider provider,
+            ILogger logger)
         {
-            _transformerFactory = transformerFactory;
+            _transformerTransformerFactory = transformerTransformerFactory;
             _provider = provider;
             _logger = logger;
         }
@@ -43,16 +44,16 @@ namespace ExchangeRate
         {
             try
             {
-                var response = await _provider.GetResponseContext(urlRequest, token);
                 token.ThrowIfCancellationRequested();
+                var response = await _provider.GetResponseContext(urlRequest, token);
                 await Task.Delay(new Random().Next(1000, 3000), token);
-                var responseTransformer = _transformerFactory.GetResponseTransformer(urlRequest);
+                var responseTransformer = _transformerTransformerFactory.GetResponseTransformer(urlRequest);
                 var result = responseTransformer.Transform(response, urlRequest);
                 token.ThrowIfCancellationRequested();
                 return result;
             }
 
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException)
             {
                 ExchangeRateResponse result;
                 if (token.IsCancellationRequested)
@@ -74,16 +75,6 @@ namespace ExchangeRate
                 }
 
                 return null;
-            }
-
-            catch (Exception ex)
-            {
-                var result = new ExchangeRateResponse
-                {
-                    ResponseStatus = ResponseStatus.OtherException,
-                    Source = urlRequest.Url
-                };
-                return result;
             }
         }
     }

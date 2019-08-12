@@ -1,12 +1,11 @@
 using System;
-using System.Net;
-using System.Net.Http;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ExchangeRate;
 using ExchangeRate.Xml;
 using Moq;
-using Moq.Protected;
 using NUnit.Framework;
 
 namespace Tests
@@ -23,166 +22,161 @@ namespace Tests
         {
             var expectedResult = "курс  USD= 34 EUR= 64  иcточник= http://ya.ru";
 
+
+            var cancelTokenSource = new CancellationTokenSource();
+            var token = cancelTokenSource.Token;
+
+            var urlRequest = new ExchangeRateSource();
+            urlRequest.Url = "http://ya.ru";
+            var xmlString = "someString";
+            var bytesArrayResponse = Encoding.ASCII.GetBytes("some string");
+            var list = new List<ExchangeRateSource>
+            {
+                new ExchangeRateSource
+                {
+                    Url = "http://ya.ru",
+                    SourceType = "any"
+                }
+            };
+
+            var mockLogger = new Mock<ILogger>();
+
             var mockExchangeRateResponce = new ExchangeRateResponse
             {
                 EURRate = "64",
-                ResponseStatus = "OK",
+                ResponseStatus = ResponseStatus.OK,
                 Source = "http://ya.ru",
                 USDRate = "34"
             };
-            var mockHttp = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+
             var mockResponseTransformer = new Mock<IResponseTransformer>();
-
-            var cancelTokenSource = new CancellationTokenSource();
-            var token = cancelTokenSource.Token;
-
-            var urlRequest = new ExchangeRateSource();
-            urlRequest.Url = "http://ya.ru";
-            var xmlString = "someXmlString";
-
-
-            mockHttp.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()
-                )
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(xmlString)
-                })
-                .Verifiable();
-
-            mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<string>()))
+            mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<ExchangeRateSource>()))
                 .Returns(mockExchangeRateResponce);
 
-            var client = new HttpClient(mockHttp.Object);
-            var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
-            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
+            var mockTransformFactory = new Mock<ITransformerFactory>();
+            mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
+                .Returns(mockResponseTransformer.Object);
+
+
+            var mockProvider = new Mock<IProvider>();
+            mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
+                .ReturnsAsync(bytesArrayResponse);
+
+            var exchangeRateService =
+                new ExchangeRateService(mockTransformFactory.Object, mockProvider.Object, mockLogger.Object);
+            var actualResult = exchangeRateService.AsyncLoadExchangeRate(list, token);
             Assert.AreEqual(expectedResult, actualResult.Result.ToString());
         }
 
 
         [Test]
-        public void AsyncLoadExchangeRateShouldReturnCanceledExceptionResult()
+        public async Task AsyncLoadExchangeRateShouldLogCanceledTaskException()
         {
-            var expectedResult = " Отмена загрузки   иcточник= http://ya.ru";
-
-            var mockHttp = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            var mockResponseTransformer = new Mock<IResponseTransformer>();
+            var expectedResult = " Задание отменено  иcточник= http://ya2.ru";
 
             var cancelTokenSource = new CancellationTokenSource();
             var token = cancelTokenSource.Token;
-            var urlRequest = new ExchangeRateSource
+
+            var urlRequest = new ExchangeRateSource();
+            urlRequest.Url = "http://ya.ru";
+            var xmlString = "someString";
+            var bytesArrayResponse = Encoding.ASCII.GetBytes("some string");
+            var list = new List<ExchangeRateSource>
             {
-                Url = "http://ya.ru"
+                new ExchangeRateSource
+                {
+                    Url = "http://ya.ru",
+                    SourceType = "any"
+                },
+                new ExchangeRateSource
+                {
+                    Url = "http://ya2.ru",
+                    SourceType = "any2"
+                }
             };
 
-            var mockExchangeRateResponset = new ExchangeRateResponse
+            var mockLogger = new Mock<ILogger>();
+            var actualResult = "";
+            mockLogger.Setup(a => a.AddLog(It.IsAny<ExchangeRateResponse>())).Callback<ExchangeRateResponse>(ex =>
+                actualResult = ex.ToString());
+
+            var mockExchangeRateResponce = new ExchangeRateResponse
             {
-                EURRate = "",
-                ResponseStatus = "",
+                EURRate = "64",
+                ResponseStatus = ResponseStatus.OK,
                 Source = "http://ya.ru",
-                USDRate = ""
+                USDRate = "34"
             };
 
+            var mockResponseTransformer = new Mock<IResponseTransformer>();
+            mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<ExchangeRateSource>()))
+                .Returns(mockExchangeRateResponce);
 
-            mockHttp.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()
-                ).Throws(new OperationCanceledException(token))
-                .Verifiable();
 
-            mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<string>()))
-                .Returns(mockExchangeRateResponset);
+            var mockTransformFactory = new Mock<ITransformerFactory>();
+            mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
+                .Returns(mockResponseTransformer.Object);
 
-            var client = new HttpClient(mockHttp.Object);
-            var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
+            var mockProvider = new Mock<IProvider>();
+
+            mockProvider.Setup(a => a.GetResponseContext(It.Is<ExchangeRateSource>(s => s.SourceType == "any"), token))
+                .ReturnsAsync(bytesArrayResponse);
+
+            mockProvider.Setup(a => a.GetResponseContext(It.Is<ExchangeRateSource>(s => s.SourceType == "any2"), token))
+                .ReturnsAsync(() =>
+                {
+                    Thread.Sleep(500);
+                    return bytesArrayResponse;
+                });
+
+
+            var exchangeRateService =
+                new ExchangeRateService(mockTransformFactory.Object, mockProvider.Object, mockLogger.Object);
+
+
+            var firs = await exchangeRateService.AsyncLoadExchangeRate(list, token);
             cancelTokenSource.Cancel();
-            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
-            Assert.AreEqual(expectedResult, actualResult.Result.ToString());
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
 
         [Test]
-        public void AsyncLoadExchangeRateHttpTimeoutExceptionShouldReturnHttpTimeoutExceptionResult()
+        public async Task AsyncLoadExchangeRateShouldLogCanceledTimeoutException()
         {
-            var expectedResult = " Таймаут привышен   иcточник= http://ya.ru";
-
-            var mockHttp = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            var mockResponseTransformer = new Mock<IResponseTransformer>();
+            var expectedResult = " Задание отменено из за таймаута иcточник= http://ya.ru";
 
             var cancelTokenSource = new CancellationTokenSource();
             var token = cancelTokenSource.Token;
-            var urlRequest = new ExchangeRateSource();
-            urlRequest.Url = "http://ya.ru";
-
-            var mockExchangeRateResponset = new ExchangeRateResponse
+            var list = new List<ExchangeRateSource>
             {
-                EURRate = "",
-                ResponseStatus = "",
-                Source = "http://ya.ru",
-                USDRate = ""
+                new ExchangeRateSource
+                {
+                    Url = "http://ya.ru",
+                    SourceType = "any"
+                }
             };
 
+            var mockLogger = new Mock<ILogger>();
+            var actualResult = "";
+            mockLogger.Setup(a => a.AddLog(It.IsAny<ExchangeRateResponse>())).Callback<ExchangeRateResponse>(ex =>
+                actualResult = ex.ToString());
 
-            mockHttp.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()
-                ).Throws(new OperationCanceledException())
-                .Verifiable();
 
-            mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<string>()))
-                .Returns(mockExchangeRateResponset);
+            var mockTransformFactory = new Mock<ITransformerFactory>();
 
-            var client = new HttpClient(mockHttp.Object);
-            var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
-            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
-            Assert.AreEqual(expectedResult, actualResult.Result.ToString());
+
+            var mockProvider = new Mock<IProvider>();
+            mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
+                .Throws(new OperationCanceledException());
+
+
+            var exchangeRateService =
+                new ExchangeRateService(mockTransformFactory.Object, mockProvider.Object, mockLogger.Object);
+
+            var firs = await exchangeRateService.AsyncLoadExchangeRate(list, token);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
-        [Test]
-        public void AsyncLoadExchangeRateDifferentExceptionShouldReturnHttpDifferentExceptionResult()
-        {
-            var expectedResult = " bad request  иcточник= http://ya.ru";
-
-            var mockHttp = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            var mockResponseTransformer = new Mock<IResponseTransformer>();
-
-            var cancelTokenSource = new CancellationTokenSource();
-            var token = cancelTokenSource.Token;
-            var urlRequest = new ExchangeRateSource();
-            urlRequest.Url = "http://ya.ru";
-
-            var mockExchangeRateResponset = new ExchangeRateResponse
-            {
-                EURRate = "",
-                ResponseStatus = "",
-                Source = "http://ya.ru",
-                USDRate = ""
-            };
-
-
-            mockHttp.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()
-                ).Throws(new HttpRequestException("bad request"))
-                .Verifiable();
-
-            mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<string>()))
-                .Returns(mockExchangeRateResponset);
-
-            var client = new HttpClient(mockHttp.Object);
-            var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
-            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
-            Assert.AreEqual(expectedResult, actualResult.Result.ToString());
-        }
+        
     }
 }
