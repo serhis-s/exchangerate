@@ -24,7 +24,7 @@ namespace ExchangeRate
         }
 
 
-        public async Task<ExchangeRateResponse> AsyncLoadSingleExchangeRate(List<ExchangeRateSource> list,
+        public async Task<ExchangeRateResponse> AsyncLoadExchangeRate(List<ExchangeRateSource> list,
             CancellationToken token)
         {
             var taskList = new List<Task<ExchangeRateResponse>>();

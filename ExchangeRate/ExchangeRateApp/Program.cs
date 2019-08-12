@@ -20,7 +20,7 @@ namespace ExchangeRateApp
             var list = SourceLoader.GetSources();
             var exchangeRateService = new ExchangeRateService(responseTransformer, provider, logger);
 
-            var result = await exchangeRateService.AsyncLoadSingleExchangeRate(list, token);
+            var result = await exchangeRateService.AsyncLoadExchangeRate(list, token);
             cancelTokenSource.Cancel();
             logger.AddLog(result);
             Console.WriteLine(result);
