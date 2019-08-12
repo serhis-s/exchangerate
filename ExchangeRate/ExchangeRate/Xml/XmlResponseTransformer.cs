@@ -14,7 +14,7 @@ namespace ExchangeRate.Xml
         /// <param name="byteArray"></param>
         /// <param name="sourceUrl"></param>
         /// <returns></returns>
-        public ExchangeRateResponse Transform(byte[] byteArray, string sourceUrl)
+        public ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource sourceUrl)
         {
             var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
             var doc = XDocument.Parse(encodingResponseContent);
@@ -28,8 +28,8 @@ namespace ExchangeRate.Xml
 
                 var exchangeRate = new ExchangeRateResponse
                 {
-                    Source = sourceUrl,
-                    ResponseStatus = "OK"
+                    Source = sourceUrl.Url,
+                    ResponseStatus = ResponseStatus.OK
                 };
 
 
@@ -49,11 +49,10 @@ namespace ExchangeRate.Xml
 
             catch (XmlSchemaValidationException ex)
             {
-                Console.WriteLine("Произошло исключение:   {0}", ex.Message);
                 var result = new ExchangeRateResponse
                 {
-                    ResponseStatus = ex.Message,
-                    Source = sourceUrl
+                    ResponseStatus = ResponseStatus.OtherException,
+                    Source = sourceUrl.Url
                 };
                 return result;
             }

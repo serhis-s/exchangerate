@@ -8,6 +8,9 @@ namespace ExchangeRate
 {
     public class ExchangeRateService
     {
+        /// <summary>
+        /// Thread safe
+        /// </summary>
         private readonly ILogger _logger;
         private readonly IProvider _provider;
         private readonly IResponseTransformer _responseTransformer;
@@ -34,7 +37,7 @@ namespace ExchangeRate
         }
 
 
-        public async Task<ExchangeRateResponse> AsyncLoadSingleExchangeRate(ExchangeRateSource urlRequest,
+        private async Task<ExchangeRateResponse> AsyncLoadSingleExchangeRate(ExchangeRateSource urlRequest,
             CancellationToken token)
         {
             try
@@ -42,7 +45,7 @@ namespace ExchangeRate
                 var response = await _provider.GetResponseContext(urlRequest, token);
                 token.ThrowIfCancellationRequested();
                 await Task.Delay(new Random().Next(5000), token);
-                var result = _responseTransformer.Transform(response, urlRequest.Url);
+                var result = _responseTransformer.Transform(response, urlRequest);
                 token.ThrowIfCancellationRequested();
                 return result;
             }
@@ -54,13 +57,13 @@ namespace ExchangeRate
                 if (token.IsCancellationRequested)
                     result = new ExchangeRateResponse
                     {
-                        ResponseStatus = "Отмена загрузки ",
+                        ResponseStatus = ResponseStatus.TaskCanceled,
                         Source = urlRequest.Url
                     };
                 else
                     result = new ExchangeRateResponse
                     {
-                        ResponseStatus = "Таймаут привышен ",
+                        ResponseStatus = ResponseStatus.ClientTimeOut,
                         Source = urlRequest.Url
                     };
 
@@ -77,7 +80,7 @@ namespace ExchangeRate
                 Console.WriteLine(ex.Message);
                 var result = new ExchangeRateResponse
                 {
-                    ResponseStatus = ex.Message,
+                    ResponseStatus = ResponseStatus.OtherException,
                     Source = urlRequest.Url
                 };
                 return result;

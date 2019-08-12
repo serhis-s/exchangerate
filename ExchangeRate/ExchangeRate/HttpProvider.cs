@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,18 +15,10 @@ namespace ExchangeRate
 
         public async Task<byte[]> GetResponseContext(ExchangeRateSource exchangeRateSource, CancellationToken token)
         {
-            try
+            using (var httpResponse = await _httpClient.GetAsync(exchangeRateSource.Url, token))
             {
-                using (var httpResponse = await _httpClient.GetAsync(exchangeRateSource.Url, token))
-                {
-                    var responseContext = await httpResponse.Content.ReadAsByteArrayAsync();
-                    return responseContext;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
+                var responseContext = await httpResponse.Content.ReadAsByteArrayAsync();
+                return responseContext;
             }
         }
     }
