@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
 using System.Threading;
@@ -17,22 +16,14 @@ namespace ExchangeRateApp
             var token = cancelTokenSource.Token;
             var logger = new Logger(ConfigurationManager.AppSettings["LogPath"]);
             var responseTransformer = new XmlResponseTransformer();
+            var provider = new HttpProvider(new HttpClient());
             var list = SourceLoader.GetSources();
-            var exchangeRateService = new ExchangeRateService(responseTransformer, new HttpClient());
-            var taskList = new List<Task<ExchangeRateResponse>>();
-            foreach (var urlRequest in list)
-                taskList.Add(Task.Run(async () =>
-                        await exchangeRateService.AsyncLoadExchangeRate(urlRequest, token)
-                    , token));
+            var exchangeRateService = new ExchangeRateService(responseTransformer, provider, logger);
 
-            var firstTask = await Task.WhenAny(taskList);
+            var result = await exchangeRateService.AsyncLoadSingleExchangeRate(list, token);
             cancelTokenSource.Cancel();
-
-            await Task.WhenAll(taskList);
-
-            foreach (var task in taskList) logger.AddLog(task.Result);
-
-            Console.WriteLine(firstTask.Result.ToString());
+            logger.AddLog(result);
+            Console.WriteLine(result);
             Console.ReadKey();
         }
     }

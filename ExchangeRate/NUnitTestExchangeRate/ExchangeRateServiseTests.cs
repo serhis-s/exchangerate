@@ -59,7 +59,7 @@ namespace Tests
 
             var client = new HttpClient(mockHttp.Object);
             var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
-            var actualResult = exchangeRateService.AsyncLoadExchangeRate(urlRequest, token);
+            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
             Assert.AreEqual(expectedResult, actualResult.Result.ToString());
         }
 
@@ -102,7 +102,7 @@ namespace Tests
             var client = new HttpClient(mockHttp.Object);
             var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
             cancelTokenSource.Cancel();
-            var actualResult = exchangeRateService.AsyncLoadExchangeRate(urlRequest, token);
+            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
             Assert.AreEqual(expectedResult, actualResult.Result.ToString());
         }
 
@@ -142,7 +142,7 @@ namespace Tests
 
             var client = new HttpClient(mockHttp.Object);
             var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
-            var actualResult = exchangeRateService.AsyncLoadExchangeRate(urlRequest, token);
+            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
             Assert.AreEqual(expectedResult, actualResult.Result.ToString());
         }
 
@@ -181,7 +181,7 @@ namespace Tests
 
             var client = new HttpClient(mockHttp.Object);
             var exchangeRateService = new ExchangeRateService(mockResponseTransformer.Object, client);
-            var actualResult = exchangeRateService.AsyncLoadExchangeRate(urlRequest, token);
+            var actualResult = exchangeRateService.AsyncLoadSingleExchangeRate(urlRequest, token);
             Assert.AreEqual(expectedResult, actualResult.Result.ToString());
         }
     }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ExchangeRate.Xml;
@@ -8,53 +8,68 @@ namespace ExchangeRate
 {
     public class ExchangeRateService
     {
-        private readonly HttpClient httpClient;
-        private readonly IResponseTransformer responseTransformer;
+        private readonly ILogger _logger;
+        private readonly IProvider _provider;
+        private readonly IResponseTransformer _responseTransformer;
 
 
-        public ExchangeRateService(IResponseTransformer responseTransformer, HttpClient httpClient)
+        public ExchangeRateService(IResponseTransformer responseTransformer, IProvider provider, ILogger logger)
         {
-            this.responseTransformer = responseTransformer;
-            this.httpClient = httpClient;
+            _responseTransformer = responseTransformer;
+            _provider = provider;
+            _logger = logger;
         }
 
-        public async Task<ExchangeRateResponse> AsyncLoadExchangeRate(ExchangeRateSource urlRequest,
+
+        public async Task<ExchangeRateResponse> AsyncLoadSingleExchangeRate(List<ExchangeRateSource> list,
+            CancellationToken token)
+        {
+            var taskList = new List<Task<ExchangeRateResponse>>();
+            foreach (var urlRequest in list)
+                taskList.Add(Task.Run(async () =>
+                        await AsyncLoadSingleExchangeRate(urlRequest, token)
+                    , token));
+            var firstTask = await Task.WhenAny(taskList);
+            return firstTask.Result;
+        }
+
+
+        public async Task<ExchangeRateResponse> AsyncLoadSingleExchangeRate(ExchangeRateSource urlRequest,
             CancellationToken token)
         {
             try
             {
-                using (var response = await httpClient.GetAsync(urlRequest.Url))
-                {
-                    token.ThrowIfCancellationRequested();
-                    await Task.Delay(new Random().Next(2000), token);
-                    var responseContent = response.Content.ReadAsByteArrayAsync();
-                    var result = responseTransformer.Transform(responseContent.Result, urlRequest.Url);
-                    token.ThrowIfCancellationRequested();
-                    return result;
-                }
+                var response = await _provider.GetResponseContext(urlRequest, token);
+                token.ThrowIfCancellationRequested();
+                await Task.Delay(new Random().Next(5000), token);
+                var result = _responseTransformer.Transform(response, urlRequest.Url);
+                token.ThrowIfCancellationRequested();
+                return result;
             }
 
             catch (OperationCanceledException ex)
             {
                 Console.WriteLine(ex.Message);
+                ExchangeRateResponse result;
                 if (token.IsCancellationRequested)
-                {
-                    var result = new ExchangeRateResponse
+                    result = new ExchangeRateResponse
                     {
                         ResponseStatus = "Отмена загрузки ",
                         Source = urlRequest.Url
                     };
-                    return result;
-                }
                 else
-                {
-                    var result = new ExchangeRateResponse
+                    result = new ExchangeRateResponse
                     {
                         ResponseStatus = "Таймаут привышен ",
                         Source = urlRequest.Url
                     };
-                    return result;
+
+                lock (_logger)
+                {
+                    _logger.AddLog(result);
                 }
+
+                return null;
             }
 
             catch (Exception ex)

@@ -10,6 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ExchangeRate\ExchangeRate.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ExchangeRate">
       <HintPath>ExchangeRate.dll</HintPath>
     </Reference>
@@ -18,12 +22,6 @@
   <ItemGroup>
     <None Update="config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ExchangeRate.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Logs\Logs.txt">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="XMLSchema.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

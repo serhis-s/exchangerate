@@ -8,16 +8,19 @@ namespace ExchangeRate.Xml
 {
     public class XmlResponseTransformer : IResponseTransformer
     {
+        /// <summary>
+        /// Thread Safe
+        /// </summary>
+        /// <param name="byteArray"></param>
+        /// <param name="sourceUrl"></param>
+        /// <returns></returns>
         public ExchangeRateResponse Transform(byte[] byteArray, string sourceUrl)
         {
             var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
             var doc = XDocument.Parse(encodingResponseContent);
-            var schemaSet = new XmlSchemaSet();
-            schemaSet.Add(null, "XMLSchema.xsd");
+
             try
             {
-                doc.Validate(schemaSet, null);
-
                 var rates = from xe in doc.Root.Elements("Valute")
                     where xe.Element("CharCode").Value == "USD" ||
                           xe.Element("CharCode").Value == "EUR"
