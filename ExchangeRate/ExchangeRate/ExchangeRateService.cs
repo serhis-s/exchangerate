@@ -9,16 +9,17 @@ namespace ExchangeRate
     public class ExchangeRateService
     {
         /// <summary>
-        /// Thread safe
+        ///     Thread safe
         /// </summary>
         private readonly ILogger _logger;
+
         private readonly IProvider _provider;
-        private readonly IResponseTransformer _responseTransformer;
+        private readonly IFactory _transformerFactory;
 
 
-        public ExchangeRateService(IResponseTransformer responseTransformer, IProvider provider, ILogger logger)
+        public ExchangeRateService(IFactory transformerFactory, IProvider provider, ILogger logger)
         {
-            _responseTransformer = responseTransformer;
+            _transformerFactory = transformerFactory;
             _provider = provider;
             _logger = logger;
         }
@@ -44,15 +45,15 @@ namespace ExchangeRate
             {
                 var response = await _provider.GetResponseContext(urlRequest, token);
                 token.ThrowIfCancellationRequested();
-                await Task.Delay(new Random().Next(5000), token);
-                var result = _responseTransformer.Transform(response, urlRequest);
+                await Task.Delay(new Random().Next(1000, 3000), token);
+                var responseTransformer = _transformerFactory.GetResponseTransformer(urlRequest);
+                var result = responseTransformer.Transform(response, urlRequest);
                 token.ThrowIfCancellationRequested();
                 return result;
             }
 
             catch (OperationCanceledException ex)
             {
-                Console.WriteLine(ex.Message);
                 ExchangeRateResponse result;
                 if (token.IsCancellationRequested)
                     result = new ExchangeRateResponse
@@ -77,7 +78,6 @@ namespace ExchangeRate
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 var result = new ExchangeRateResponse
                 {
                     ResponseStatus = ResponseStatus.OtherException,

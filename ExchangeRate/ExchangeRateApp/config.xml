@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Paths>
-  <path> https://www.nbkr.kg/XML/daily.xml </path>
-  <path> http://www.cbr-xml-daily.ru/daily.xml </path>
-</Paths>
+<Sources>
+  <source path="https://www.nbkr.kg/XML/daily.xml" type="NBKR" ></source>
+  <source path="http://www.cbr-xml-daily.ru/daily.xml" type="CBR" ></source>
+</Sources>

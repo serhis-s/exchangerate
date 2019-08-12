@@ -15,10 +15,10 @@ namespace ExchangeRateApp
             var cancelTokenSource = new CancellationTokenSource();
             var token = cancelTokenSource.Token;
             var logger = new Logger(ConfigurationManager.AppSettings["LogPath"]);
-            var responseTransformer = new XmlResponseTransformer();
+            var transformerFactory = new XmlTransformerFactory();
             var provider = new HttpProvider(new HttpClient());
             var list = SourceLoader.GetSources();
-            var exchangeRateService = new ExchangeRateService(responseTransformer, provider, logger);
+            var exchangeRateService = new ExchangeRateService(transformerFactory, provider, logger);
 
             var result = await exchangeRateService.AsyncLoadExchangeRate(list, token);
             cancelTokenSource.Cancel();

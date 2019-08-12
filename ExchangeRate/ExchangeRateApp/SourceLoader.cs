@@ -13,12 +13,13 @@ namespace ExchangeRateApp
             var appSettings = ConfigurationManager.AppSettings["ConfigPath"];
             var xDoc = XDocument.Load(appSettings);
 
-            var root = xDoc.Element("Paths");
+            var root = xDoc.Element("Sources");
             foreach (var node in root.Elements())
             {
                 var newSource = new ExchangeRateSource
                 {
-                    Url = node.Value
+                    Url = node.Attribute("path").Value,
+                    SourceType = node.Attribute("type").Value
                 };
 
                 list.Add(newSource);
