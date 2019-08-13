@@ -9,9 +9,9 @@ namespace ExchangeRate.Xml
         {
             switch (exchangeRateSource.SourceType)
             {
-                case "CBR":
+                case SourseType.CBR:
                     return new XmlResponseTransformerCbr();
-                case "NBKR":
+                case SourseType.NBKR:
                     return new XmlResponseTransformerNbkr();
             }
             return null;

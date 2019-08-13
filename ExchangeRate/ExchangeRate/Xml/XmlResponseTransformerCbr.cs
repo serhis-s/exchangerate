@@ -16,11 +16,12 @@ namespace ExchangeRate.Xml
         /// <returns></returns>
         public ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource sourceUrl)
         {
-            var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
-            var doc = XDocument.Parse(encodingResponseContent);
+            
 
             try
             {
+                var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
+                var doc = XDocument.Parse(encodingResponseContent);
                 var rates = from xe in doc.Root.Elements("Valute")
                     where xe.Element("CharCode").Value == "USD" ||
                           xe.Element("CharCode").Value == "EUR"
@@ -36,7 +37,6 @@ namespace ExchangeRate.Xml
                     switch (node.Element("CharCode").Value)
                     {
                         case "USD":
-                            Console.WriteLine(node.Element("Value").Value);
                             exchangeRate.USDRate = node.Element("Value").Value;
                             break;
                         case "EUR":
@@ -46,14 +46,16 @@ namespace ExchangeRate.Xml
                 return exchangeRate;
             }
 
-            catch (XmlSchemaValidationException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                
                 var result = new ExchangeRateResponse
                 {
                     ResponseStatus = ResponseStatus.OtherException,
+                    ExceptionMessage =  ex.Message,
                     Source = sourceUrl.Url
                 };
+                Console.WriteLine(result.ToString());
                 return result;
             }
         }

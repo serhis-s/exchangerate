@@ -5,6 +5,7 @@
         public string USDRate { get; set; }
         public string EURRate { get; set; }
         public string Source { get; set; }
+        public string ExceptionMessage { get; set; }
         public ResponseStatus ResponseStatus { get; set; }
 
         public override string ToString()
@@ -18,7 +19,7 @@
                 case ResponseStatus.ClientTimeOut:
                     return string.Format(" Задание отменено из за таймаута иcточник= {0}", Source);
                 default:
-                    return string.Format(" Другая ошибка иcточник= {0}", Source);
+                    return string.Format(" ошибка = {0} иcточник= {1}",ExceptionMessage, Source);
             }
         }
     }

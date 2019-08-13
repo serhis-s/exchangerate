@@ -125,7 +125,7 @@ namespace Tests
             mockProvider.Setup(a => a.GetResponseContext(It.Is<ExchangeRateSource>(s => s.SourceType == "any2"), token))
                 .ReturnsAsync(() =>
                 {
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                     return bytesArrayResponse;
                 });
 

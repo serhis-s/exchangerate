@@ -18,9 +18,12 @@ namespace ExchangeRateApp
             {
                 var newSource = new ExchangeRateSource
                 {
-                    Url = node.Attribute("path").Value,
-                    SourceType = node.Attribute("type").Value
+                    Url = node.Attribute("path").Value
                 };
+                if (node.Attribute("type").Value == "CBR")
+                    newSource.SourceType = SourseType.CBR;
+                else
+                    newSource.SourceType = SourseType.NBKR;
 
                 list.Add(newSource);
             }
