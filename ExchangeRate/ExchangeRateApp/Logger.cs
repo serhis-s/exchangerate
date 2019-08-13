@@ -4,7 +4,7 @@ using ExchangeRate;
 
 namespace ExchangeRateApp
 {
-    public class Logger
+    public class Logger : ILogger
     {
         private readonly string logPath;
 
