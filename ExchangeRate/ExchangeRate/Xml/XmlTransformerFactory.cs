@@ -4,17 +4,17 @@ namespace ExchangeRate.Xml
 {
     public class XmlTransformerFactory : ITransformerFactory
     {
-
         public IResponseTransformer GetResponseTransformer(ExchangeRateSource exchangeRateSource)
         {
             switch (exchangeRateSource.SourceType)
             {
-                case SourseType.CBR:
+                case SourseTypeEnum.CBR:
                     return new XmlResponseTransformerCbr();
-                case SourseType.NBKR:
+                case SourseTypeEnum.NBKR:
                     return new XmlResponseTransformerNbkr();
+                default:
+                    throw new Exception("wrong source type");
             }
-            return null;
         }
     }
 }

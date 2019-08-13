@@ -19,11 +19,9 @@ namespace ExchangeRateApp
             var provider = new HttpProvider(new HttpClient());
             var list = SourceLoader.GetSources();
             var exchangeRateService = new ExchangeRateService(transformerFactory, provider, logger);
-
             var result = await exchangeRateService.AsyncLoadExchangeRate(list, token);
             cancelTokenSource.Cancel();
             logger.AddLog(result);
-            Console.WriteLine(result);
             Console.ReadKey();
         }
     }

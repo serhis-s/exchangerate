@@ -2,22 +2,19 @@
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using System.Xml.Schema;
 
 namespace ExchangeRate.Xml
 {
     public class XmlResponseTransformerCbr : IResponseTransformer
     {
         /// <summary>
-        /// Thread Safe
+        ///     Thread Safe
         /// </summary>
         /// <param name="byteArray"></param>
         /// <param name="sourceUrl"></param>
         /// <returns></returns>
         public ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource sourceUrl)
         {
-            
-
             try
             {
                 var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
@@ -43,19 +40,18 @@ namespace ExchangeRate.Xml
                             exchangeRate.EURRate = node.Element("Value").Value;
                             break;
                     }
+
                 return exchangeRate;
             }
 
             catch (Exception ex)
             {
-                
                 var result = new ExchangeRateResponse
                 {
                     ResponseStatus = ResponseStatus.OtherException,
-                    ExceptionMessage =  ex.Message,
+                    ExceptionMessage = ex.Message,
                     Source = sourceUrl.Url
                 };
-                Console.WriteLine(result.ToString());
                 return result;
             }
         }

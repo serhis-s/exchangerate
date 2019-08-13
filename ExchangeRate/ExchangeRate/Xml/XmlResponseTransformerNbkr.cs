@@ -15,11 +15,10 @@ namespace ExchangeRate.Xml
         /// <returns></returns>
         public ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource sourceUrl)
         {
-            var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
-            var doc = XDocument.Parse(encodingResponseContent);
-
             try
             {
+                var encodingResponseContent = Encoding.UTF8.GetString(byteArray);
+                var doc = XDocument.Parse(encodingResponseContent);
                 var rates = from xe in doc.Root.Elements("Currency")
                     where xe.Attribute("ISOCode").Value == "USD" ||
                           xe.Attribute("ISOCode").Value == "EUR"

@@ -12,7 +12,6 @@ namespace ExchangeRate
         ///     Thread safe
         /// </summary>
         private readonly ILogger _logger;
-
         private readonly IProvider _provider;
         private readonly ITransformerFactory _transformerTransformerFactory;
 

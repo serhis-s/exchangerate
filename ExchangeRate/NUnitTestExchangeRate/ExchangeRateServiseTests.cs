@@ -22,10 +22,8 @@ namespace Tests
         {
             var expectedResult = "курс  USD= 34 EUR= 64  иcточник= http://ya.ru";
 
-
             var cancelTokenSource = new CancellationTokenSource();
             var token = cancelTokenSource.Token;
-
             var urlRequest = new ExchangeRateSource();
             urlRequest.Url = "http://ya.ru";
             var xmlString = "someString";
@@ -35,7 +33,7 @@ namespace Tests
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = "any"
+                    SourceType = SourseTypeEnum.CBR
                 }
             };
 
@@ -57,7 +55,6 @@ namespace Tests
             mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
                 .Returns(mockResponseTransformer.Object);
 
-
             var mockProvider = new Mock<IProvider>();
             mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .ReturnsAsync(bytesArrayResponse);
@@ -72,7 +69,7 @@ namespace Tests
         [Test]
         public async Task AsyncLoadExchangeRateShouldLogCanceledTaskException()
         {
-            var expectedResult = " Задание отменено  иcточник= http://ya2.ru";
+            var expectedResult = " Задание отменено  иcточник= http://ya.ru";
 
             var cancelTokenSource = new CancellationTokenSource();
             var token = cancelTokenSource.Token;
@@ -86,12 +83,12 @@ namespace Tests
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = "any"
+                    SourceType = SourseTypeEnum.CBR
                 },
                 new ExchangeRateSource
                 {
-                    Url = "http://ya2.ru",
-                    SourceType = "any2"
+                    Url = "http://ya.ru",
+                    SourceType = SourseTypeEnum.NBKR
                 }
             };
 
@@ -112,27 +109,18 @@ namespace Tests
             mockResponseTransformer.Setup(a => a.Transform(It.IsAny<byte[]>(), It.IsAny<ExchangeRateSource>()))
                 .Returns(mockExchangeRateResponce);
 
-
             var mockTransformFactory = new Mock<ITransformerFactory>();
             mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
                 .Returns(mockResponseTransformer.Object);
 
             var mockProvider = new Mock<IProvider>();
 
-            mockProvider.Setup(a => a.GetResponseContext(It.Is<ExchangeRateSource>(s => s.SourceType == "any"), token))
+            mockProvider.Setup(a =>
+                    a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .ReturnsAsync(bytesArrayResponse);
-
-            mockProvider.Setup(a => a.GetResponseContext(It.Is<ExchangeRateSource>(s => s.SourceType == "any2"), token))
-                .ReturnsAsync(() =>
-                {
-                    Thread.Sleep(1000);
-                    return bytesArrayResponse;
-                });
-
 
             var exchangeRateService =
                 new ExchangeRateService(mockTransformFactory.Object, mockProvider.Object, mockLogger.Object);
-
 
             var firs = await exchangeRateService.AsyncLoadExchangeRate(list, token);
             cancelTokenSource.Cancel();
@@ -152,7 +140,7 @@ namespace Tests
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = "any"
+                    SourceType = SourseTypeEnum.CBR
                 }
             };
 
@@ -161,14 +149,10 @@ namespace Tests
             mockLogger.Setup(a => a.AddLog(It.IsAny<ExchangeRateResponse>())).Callback<ExchangeRateResponse>(ex =>
                 actualResult = ex.ToString());
 
-
             var mockTransformFactory = new Mock<ITransformerFactory>();
-
-
             var mockProvider = new Mock<IProvider>();
             mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .Throws(new OperationCanceledException());
-
 
             var exchangeRateService =
                 new ExchangeRateService(mockTransformFactory.Object, mockProvider.Object, mockLogger.Object);
@@ -176,7 +160,5 @@ namespace Tests
             var firs = await exchangeRateService.AsyncLoadExchangeRate(list, token);
             Assert.AreEqual(expectedResult, actualResult);
         }
-
-        
     }
 }

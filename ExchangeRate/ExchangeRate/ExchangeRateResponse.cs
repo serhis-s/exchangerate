@@ -19,7 +19,7 @@
                 case ResponseStatus.ClientTimeOut:
                     return string.Format(" Задание отменено из за таймаута иcточник= {0}", Source);
                 default:
-                    return string.Format(" ошибка = {0} иcточник= {1}",ExceptionMessage, Source);
+                    return string.Format(" ошибка = {0} иcточник= {1}", ExceptionMessage, Source);
             }
         }
     }
