@@ -33,7 +33,7 @@ namespace Tests
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = SourseTypeEnum.CBR
+                    SourceType = SourceTypeEnum.CBR
                 }
             };
 
@@ -55,7 +55,7 @@ namespace Tests
             mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
                 .Returns(mockResponseTransformer.Object);
 
-            var mockProvider = new Mock<IProvider>();
+            var mockProvider = new Mock<IClientProvider>();
             mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .ReturnsAsync(bytesArrayResponse);
 
@@ -83,12 +83,12 @@ namespace Tests
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = SourseTypeEnum.CBR
+                    SourceType = SourceTypeEnum.CBR
                 },
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = SourseTypeEnum.NBKR
+                    SourceType = SourceTypeEnum.NBKR
                 }
             };
 
@@ -113,7 +113,7 @@ namespace Tests
             mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
                 .Returns(mockResponseTransformer.Object);
 
-            var mockProvider = new Mock<IProvider>();
+            var mockProvider = new Mock<IClientProvider>();
 
             mockProvider.Setup(a =>
                     a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
@@ -140,7 +140,7 @@ namespace Tests
                 new ExchangeRateSource
                 {
                     Url = "http://ya.ru",
-                    SourceType = SourseTypeEnum.CBR
+                    SourceType = SourceTypeEnum.CBR
                 }
             };
 
@@ -150,7 +150,7 @@ namespace Tests
                 actualResult = ex.ToString());
 
             var mockTransformFactory = new Mock<ITransformerFactory>();
-            var mockProvider = new Mock<IProvider>();
+            var mockProvider = new Mock<IClientProvider>();
             mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .Throws(new OperationCanceledException());
 

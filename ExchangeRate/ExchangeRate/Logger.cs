@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using ExchangeRate;
 
-namespace ExchangeRateApp
+namespace ExchangeRate
 {
     public class Logger : ILogger
     {

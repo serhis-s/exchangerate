@@ -8,9 +8,9 @@ namespace ExchangeRate.Xml
         {
             switch (exchangeRateSource.SourceType)
             {
-                case SourseTypeEnum.CBR:
+                case SourceTypeEnum.CBR:
                     return new XmlResponseTransformerCbr();
-                case SourseTypeEnum.NBKR:
+                case SourceTypeEnum.NBKR:
                     return new XmlResponseTransformerNbkr();
                 default:
                     throw new Exception("wrong source type");

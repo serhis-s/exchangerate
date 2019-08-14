@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace ExchangeRate
 {
-    public interface IProvider
+    public interface IClientProvider
     {
         Task<byte[]> GetResponseContext(ExchangeRateSource exchangeRateSource, CancellationToken token);
     }

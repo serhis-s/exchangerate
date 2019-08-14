@@ -21,9 +21,9 @@ namespace ExchangeRateApp
                     Url = node.Attribute("path").Value
                 };
                 if (node.Attribute("type").Value == "CBR")
-                    newSource.SourceType = SourseTypeEnum.CBR;
+                    newSource.SourceType = SourceTypeEnum.CBR;
                 else
-                    newSource.SourceType = SourseTypeEnum.NBKR;
+                    newSource.SourceType = SourceTypeEnum.NBKR;
 
                 list.Add(newSource);
             }

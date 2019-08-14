@@ -20,7 +20,7 @@ namespace Tests
             var exchangeRateSource = new ExchangeRateSource
             {
                 Url = "http://ya.ru",
-                SourceType = SourseTypeEnum.NBKR
+                SourceType = SourceTypeEnum.NBKR
             };
 
             var ac = transformFactory.GetResponseTransformer(exchangeRateSource);
@@ -36,7 +36,7 @@ namespace Tests
             var exchangeRateSource = new ExchangeRateSource
             {
                 Url = "http://ya.ru",
-                SourceType = SourseTypeEnum.CBR
+                SourceType = SourceTypeEnum.CBR
             };
 
             var ac = transformFactory.GetResponseTransformer(exchangeRateSource);
@@ -48,12 +48,12 @@ namespace Tests
         public void GetResponseTransformerShouldReturnTypeXmlResponseException()
         {
             var expectedResult = "wrong source type";
-            var actualresult = "";
+            var actualResult = "";
             var transformFactory = new XmlTransformerFactory();
             var exchangeRateSource = new ExchangeRateSource
             {
                 Url = "http://ya.ru",
-                SourceType = SourseTypeEnum.TEST
+                SourceType = SourceTypeEnum.TEST
             };
 
             try
@@ -62,10 +62,10 @@ namespace Tests
             }
             catch (Exception ex)
             {
-                actualresult = ex.Message;
+                actualResult = ex.Message;
             }
 
-            Assert.AreEqual(expectedResult, actualresult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
     }
 }

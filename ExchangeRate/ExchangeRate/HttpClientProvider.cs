@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace ExchangeRate
 {
-    public class HttpProvider : IProvider
+    public class HttpClientProvider : IClientProvider
     {
         private readonly HttpClient _httpClient;
 
-        public HttpProvider(HttpClient httpClient)
+        public HttpClientProvider(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }

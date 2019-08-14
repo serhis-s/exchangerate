@@ -20,7 +20,7 @@ namespace Tests
             var exchangeRateSource = new ExchangeRateSource
             {
                 Url = "http://ya.ru",
-                SourceType = SourseTypeEnum.CBR
+                SourceType = SourceTypeEnum.CBR
             };
 
             var StringResponse = @"<?xml version=""1.0"" encoding=""windows - 1251""?>
@@ -62,7 +62,7 @@ namespace Tests
             var exchangeRateSource = new ExchangeRateSource
             {
                 Url = "http://ya.ru",
-                SourceType = SourseTypeEnum.CBR
+                SourceType = SourceTypeEnum.CBR
             };
 
             var StringResponse = @"<?xml version=""1.0"" encoding=""windows - 1251""?>

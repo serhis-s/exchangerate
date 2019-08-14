@@ -1,6 +1,6 @@
 ﻿namespace ExchangeRate
 {
-    public enum SourseTypeEnum
+    public enum SourceTypeEnum
     {
         CBR,
         NBKR,
