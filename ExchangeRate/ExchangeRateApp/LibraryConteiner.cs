@@ -1,10 +1,11 @@
 ﻿using System.Configuration;
+using ExchangeRate;
 using ExchangeRate.Xml;
 using Ninject.Modules;
 
-namespace ExchangeRate
+namespace ExchangeRateApp
 {
-    public class LibraryModule : NinjectModule
+    public class LibraryConteiner : NinjectModule
     {
         public override void Load()
         {
