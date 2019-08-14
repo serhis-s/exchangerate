@@ -11,9 +11,9 @@ namespace ExchangeRate.Xml
         ///     /// Thread Safe
         /// </summary>
         /// <param name="byteArray"></param>
-        /// <param name="sourceUrl"></param>
+        /// <param name="exchangeRateSource"></param>
         /// <returns></returns>
-        public ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource sourceUrl)
+        public ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource exchangeRateSource)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace ExchangeRate.Xml
 
                 var exchangeRate = new ExchangeRateResponse
                 {
-                    Source = sourceUrl.Url,
+                    Source = exchangeRateSource.Url,
                     ResponseStatus = ResponseStatus.OK
                 };
 
@@ -51,7 +51,7 @@ namespace ExchangeRate.Xml
                 {
                     ResponseStatus = ResponseStatus.OtherException,
                     ExceptionMessage = ex.Message,
-                    Source = sourceUrl.Url
+                    Source = exchangeRateSource.Url
                 };
                 return result;
             }

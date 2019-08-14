@@ -2,6 +2,6 @@
 {
     public interface IResponseTransformer
     {
-        ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource sourceUrl);
+        ExchangeRateResponse Transform(byte[] byteArray, ExchangeRateSource exchangeRateSource);
     }
 }
