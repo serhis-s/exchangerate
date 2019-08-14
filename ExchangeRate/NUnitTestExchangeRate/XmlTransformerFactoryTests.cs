@@ -1,6 +1,8 @@
 ﻿using System;
 using ExchangeRate;
 using ExchangeRate.Xml;
+using ExchangeRateApp;
+using Ninject;
 using NUnit.Framework;
 
 namespace Tests

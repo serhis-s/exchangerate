@@ -5,7 +5,7 @@ using Ninject.Modules;
 
 namespace ExchangeRateApp
 {
-    public class LibraryConteiner : NinjectModule
+    public class ExchangeRateModule : NinjectModule
     {
         public override void Load()
         {
