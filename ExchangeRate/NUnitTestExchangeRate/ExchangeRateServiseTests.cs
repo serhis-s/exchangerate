@@ -55,7 +55,7 @@ namespace Tests
             mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
                 .Returns(mockResponseTransformer.Object);
 
-            var mockProvider = new Mock<IClientProvider>();
+            var mockProvider = new Mock<IExchangeRateClient>();
             mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .ReturnsAsync(bytesArrayResponse);
 
@@ -113,7 +113,7 @@ namespace Tests
             mockTransformFactory.Setup(a => a.GetResponseTransformer(It.IsAny<ExchangeRateSource>()))
                 .Returns(mockResponseTransformer.Object);
 
-            var mockProvider = new Mock<IClientProvider>();
+            var mockProvider = new Mock<IExchangeRateClient>();
 
             mockProvider.Setup(a =>
                     a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
@@ -150,7 +150,7 @@ namespace Tests
                 actualResult = ex.ToString());
 
             var mockTransformFactory = new Mock<ITransformerFactory>();
-            var mockProvider = new Mock<IClientProvider>();
+            var mockProvider = new Mock<IExchangeRateClient>();
             mockProvider.Setup(a => a.GetResponseContext(It.IsAny<ExchangeRateSource>(), token))
                 .Throws(new OperationCanceledException());
 

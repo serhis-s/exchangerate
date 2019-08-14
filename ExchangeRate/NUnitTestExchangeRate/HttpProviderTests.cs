@@ -37,7 +37,7 @@ namespace Tests
                 })
                 .Verifiable();
             var client = new HttpClient(mockHttp.Object);
-            var httpProvider = new HttpClientProvider(client);
+            var httpProvider = new HttpExchangeRateClient(client);
             var responseContext = httpProvider.GetResponseContext(exchangeRateSource, token);
             var actualResult = Encoding.UTF8.GetString(responseContext.Result);
 

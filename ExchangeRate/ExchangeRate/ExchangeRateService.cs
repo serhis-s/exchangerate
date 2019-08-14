@@ -12,15 +12,15 @@ namespace ExchangeRate
         ///     Thread safe
         /// </summary>
         private readonly ILogger _logger;
-        private readonly IClientProvider _clientProvider;
+        private readonly IExchangeRateClient _exchangeRateClient;
         private readonly ITransformerFactory _transformerTransformerFactory;
 
 
-        public ExchangeRateService(ITransformerFactory transformerTransformerFactory, IClientProvider clientProvider,
+        public ExchangeRateService(ITransformerFactory transformerTransformerFactory, IExchangeRateClient exchangeRateClient,
             ILogger logger)
         {
             _transformerTransformerFactory = transformerTransformerFactory;
-            _clientProvider = clientProvider;
+            _exchangeRateClient = exchangeRateClient;
             _logger = logger;
         }
 
@@ -44,7 +44,7 @@ namespace ExchangeRate
             try
             {
                 token.ThrowIfCancellationRequested();
-                var response = await _clientProvider.GetResponseContext(urlRequest, token);
+                var response = await _exchangeRateClient.GetResponseContext(urlRequest, token);
                 await Task.Delay(new Random().Next(1000, 3000), token);
                 var responseTransformer = _transformerTransformerFactory.GetResponseTransformer(urlRequest);
                 var result = responseTransformer.Transform(response, urlRequest);

@@ -10,7 +10,7 @@ namespace ExchangeRateApp
     {
         private static async Task Main(string[] args)
         {
-            var kernel = new StandardKernel(new LibraryConteiner());
+            var kernel = new StandardKernel(new ExchangeRateModule());
 
             var cancelTokenSource = new CancellationTokenSource();
             var token = cancelTokenSource.Token;
